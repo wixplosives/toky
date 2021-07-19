@@ -11,6 +11,7 @@ import type {
   NthDash,
   NthOffset,
   NthOf,
+  GroupedSelector,
   ParseConfig,
 } from "@tokey/css-selector-parser";
 import { createParseTester } from "@tokey/test-kit";
@@ -20,8 +21,10 @@ export const test = createParseTester({
   stringify: stringifySelectorAst,
 });
 
-export function createNode<TYPE extends SelectorNode["type"]>(
-  expected: Partial<SelectorNode> & { type: TYPE }
+export function createNode<
+  TYPE extends SelectorNode["type"] | GroupedSelector["type"]
+>(
+  expected: Partial<SelectorNode | GroupedSelector> & { type: TYPE }
 ): TYPE extends "selector"
   ? Selector
   : TYPE extends "comment"
@@ -36,8 +39,10 @@ export function createNode<TYPE extends SelectorNode["type"]>(
   ? NthOffset
   : TYPE extends "nth_of"
   ? NthOf
+  : TYPE extends "GroupedSelector"
+  ? GroupedSelector
   : SelectorNode {
-  const defaults: SelectorNode = {
+  const defaults: SelectorNode | GroupedSelector = {
     type: expected.type,
     start: 0,
     end: 0,
@@ -68,6 +73,7 @@ export function createNode<TYPE extends SelectorNode["type"]>(
   }
   if (
     defaults.type === `selector` ||
+    defaults.type === `grouped_selector` ||
     defaults.type === `combinator` ||
     defaults.type === `comment` ||
     defaults.type === `nth` ||
